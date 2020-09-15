@@ -1,0 +1,102 @@
+---
+title: "assignment 3_2"
+output: word_document
+---
+submitted by: Jyotish Saikia
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+library initialization:
+```{r}
+library(gapminder)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+train=filter(gapminder,year>="1952" & year<="1992")
+test=filter(gapminder,year>="1993" & year<="2007")
+method=c("fit.1","fit.2","fit.3","fit.4")
+fit.1=lm(data=train,lifeExp~gdpPercap)
+fit.2=glm(data=train,lifeExp~gdpPercap)
+fit.3=rlm(lifeExp~gdpPercap,data=train)
+fit.4=loess(data=train,lifeExp~gdpPercap)
+range1=rep(1:5)
+for (i in range1){
+summary(method[i])
+
+ggplot(data=train, aes(lm.fit$residuals)) +
+geom_histogram(binwidth = 1, color = "black", fill = "red") +
+theme(panel.background = element_rect(fill = "white"),
+axis.line.x=element_line(),
+axis.line.y=element_line()) +
+ggtitle("Histogram for Model Residuals")
+
+test$y_pred=predict(lm.fit, test)
+pred_interval=predict(lm.fit,test,interval = "predict")
+pred_in=data.frame(pred_interval)
+
+ggplot(data=test,aes(x=test$gdpPercap,y=test$lifeExp))+
+  geom_segment(aes(xend=test$gdpPercap,yend=y_pred),alpha=.2)+
+  geom_point(colour="red")+
+  geom_point(aes(y=y_pred),shape=1,colour="blue")+
+  geom_line(aes(test$gdpPercap,y_pred))+
+  geom_ribbon(aes(ymin=pred_in$lwr,ymax=pred_in$upr),fill="black",alpha=.1)+
+  facet_wrap(~continent,scales = "free")+
+  ggtitle("Plot of actual life expectency and predicted life expectency vs  gdp per capita")+
+  xlab("gdp per cap")+
+  ylab("actual life expectency(blue), predicted life expectency(red)")+
+  theme_light()
+}
+```
+
+
+
+```{r}
+par(mfrow=c(2,5))
+range=rep(1:5)
+conti=levels(gapminder$continent)
+for (i in range){
+train_new=filter(gapminder,year>="1952" & year<="1992" & continent==conti[i])
+test_new=filter(gapminder,year>="1993" & year<="2007" & continent==conti[i])
+
+lm.fit=lm(data=train_new,lifeExp~gdpPercap)
+print("summary of model")
+print(conti[i])
+print(summary(lm.fit))
+
+
+plot1=ggplot(data=train_new, aes(lm.fit$residuals)) +
+  geom_histogram(binwidth = 1, color = "black", fill = "red") +
+  theme(panel.background = element_rect(fill = "white"),
+  axis.line.x=element_line(),
+  axis.line.y=element_line()) +
+  facet_wrap(~continent,scales = "free")+
+  ggtitle("Histogram for Model Residuals")
+
+test_new$y_pred=predict(lm.fit, test_new)
+pred_interval=predict(lm.fit,test_new,interval = "predict")
+pred_in_new=data.frame(pred_interval)
+
+plot2=ggplot(data=test_new,aes(x=test_new$gdpPercap,y=test_new$lifeExp))+
+  geom_segment(aes(xend=test_new$gdpPercap,yend=y_pred),alpha=.2)+
+  geom_point(colour="red")+
+  geom_point(aes(y=y_pred),shape=1,colour="blue")+
+  geom_line(aes(test_new$gdpPercap,y_pred))+
+  geom_ribbon(aes(ymin=pred_in_new$lwr,ymax=pred_in_new$upr),fill="black",alpha=.1)+
+  facet_wrap(~continent,scales = "free")+
+  ggtitle("Plot of actual life expectency and predicted life expectency vs  gdp per capita")+
+  xlab("gdp per cap")+
+  ylab("actual life expectency(blue), predicted life expectency(red)")+
+  theme_light()
+plot(plot1)
+plot(plot2)
+}
+```
+```{r}
+
+```
+
+
+

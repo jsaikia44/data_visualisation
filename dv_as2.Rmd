@@ -1,0 +1,123 @@
+---
+title: "Data Visualization assignment 2"
+output: word_document
+---
+submitted by: Jyotish Saikia(194161006)
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+1.Load the data gapminder and analyze different columns of data.
+Plot life expectancy over time for each country. Do you think the plot is meaningful? Justify your answer in markdown.
+Ans:
+```{r}
+library(gapminder)
+library(ggplot2)
+library(socviz)
+colnames(gapminder)
+d.gapminder=data.frame(gapminder)
+summary(gapminder)
+ggplot(data = gapminder, aes(x=year, y=lifeExp,by=country)) +
+  geom_line()
+```
+the plot is not appropiate for understanding. So we need another variable to categories these lines.
+
+2.1 As discussed in section1, faceting the data using extra variable
+means making small multiple plots for the same data.
+Ans.
+Here we are using continent variable as facet variable to divide thesae line to different groups.
+```{r fig.width=10}
+
+ggplot(data = d.gapminder, aes(x=year, y=lifeExp, by=country, color=continent)) +
+  geom_line()+facet_wrap(~ continent)
+```
+2.2 We can facet the data based on more than one variable, Use gss sm data to plot a smoothed scatter plot showing the relationship between the age of the respondent and the number of children they have. Facet this relation based on race and degree. Also, in markdown, describe your observation from the plot in brief.
+Ans.
+
+```{r fig.width=12}
+d.gss_sm=data.frame(gss_sm)
+ggplot(data=d.gss_sm, aes(age,childs)) +
+  geom_point() +
+  geom_smooth() +
+  facet_grid(race~degree,scales="free")
+```
+observation:
+Number of children are more for higher age people in white race.
+high school and lt high school degree category has more children. graduate and bachelor degree category have children less than 6.
+
+
+3.gss sm data contains the political view (polviews) variable. Plot a
+bar graph, with the bar in the chart represented by different political views
+Ans.
+```{r fig.width=10}
+ggplot(d.gss_sm, aes(polviews)) +
+  geom_bar()
+```
+
+
+4.Again using gss sm data, visualize the frequency plot, with the bars
+representing dfferent political views and each bar in the graph, is further categorized by a different religion. Also, visualize frequency plot faceted by variable bigregion.
+Ans:
+
+```{r fig.width=10}
+ggplot(d.gss_sm, aes(polviews)) +
+  geom_bar(aes(fill = religion))
+```
+frequency plot faceted by variable bigregion.
+```{r}
+ggplot(d.gss_sm, aes(polviews)) +
+  geom_bar(aes(fill = religion))+
+  facet_wrap(~bigregion)
+```
+
+5.1 Showcasing ages into bins.
+Ans:
+```{r}
+ggplot(d.gss_sm, aes(age))+geom_histogram(binwidth = 1,col="red",alpha=.8)
+
+```
+5.2 Modify the previous histogram, dividing the observation based on variable race. Each race should be represented in a different color.
+Ans:
+```{r}
+ggplot(gss_sm, aes(age,fill=race))+
+  geom_histogram(binwidth = 1,col="black",alpha=.8)+
+  ggtitle("histogram")
+
+```
+5.3 Discuss which variable among the two age and agegrp, is more appropriate for plots like a histogram and density plots and why?
+Ans.
+```{r}
+ggplot(gss_sm, aes(x=age, fill=race)) +
+    geom_density(position="stack",alpha = 0.8)+
+  ggtitle("Stacked Density plot")
+```
+```{r}
+ggplot(gss_sm, aes(x=agegrp, fill=race)) +
+    geom_density(position="stack",alpha = 0.8)+
+  ggtitle("Stacked Density plot")
+```
+this density plot is not well defined.
+```{r}
+ggplot(gss_sm, aes(agegrp,fill=race))+
+  geom_histogram(binwidth = 1,col="black",alpha=.8,stat="count")+
+  ggtitle("histogram")
+
+```
+Age variable is continuous so we can plot both histogram as well as density plot.
+In other case, Agegrp variable is not continuous so only histrogram plot is appropiate for it. 
+
+
+5.4 Density plot
+ x-axis: age.
+ Division based on variable degree.
+ Faceting based on variable income16.
+Ans:
+```{r fig.width=12}
+ggplot(d.gss_sm, aes(x = age, fill = degree)) +
+  geom_density(position="identity", alpha=0.5)+
+  facet_wrap(~income16,scale = "free_y")
+```
+
+
+
+

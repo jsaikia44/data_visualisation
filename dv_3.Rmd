@@ -1,0 +1,84 @@
+---
+title: "Assignment 3"
+output: word_document
+---
+Submitted by: Jyotish Saikia
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(gapminder)
+library(MASS)
+summary(gapminder)
+data.frame=gapminder
+gdpPercap.1=log(data.frame$gdpPercap)
+data.frame[,"lifeExp"]=data.frame$lifeExp
+data.frame[,"gdpPercap.1"]=gdpPercap.1
+
+```
+1.Using the gapminder dataset, plot a scatter plot with log(gdpPercap) on x-axis and
+lifeExp on y-axis. Generate a graph with following different smoothing methods (Add
+legend for clear distinction of each smooth curve)
+1. use lm to fit three degree polynomial curve
+2. use glm [glm: generalized linear model]
+3. use gam with y = log(x) for smoothening [gam: generalized additive model]
+4. use rlm with y = poly(x; 2) for smoothening [rlm: robust linear regression model]
+5. use loess
+Ans:
+```{r fig.width=12}
+library(ggplot2)
+ggplot(data = data.frame, aes(x=gdpPercap.1, y=lifeExp))+
+geom_point(size=2)+
+  geom_smooth(method = "lm",formula=y~poly(x,3),se=FALSE,show.legend=TRUE,aes(colour="lm"))+
+  geom_smooth(method="glm",se=FALSE,show.legend=TRUE,aes(colour="glm"))+
+  geom_smooth(method="gam",formula=y~log(x),se=FALSE,show.legend=TRUE,aes(colour="gam"))+
+  geom_smooth(method="rlm",formula=y~poly(x,2),se=FALSE,show.legend=TRUE,aes(colour="rlm"))+
+  geom_smooth(method="loess",se=FALSE,show.legend=TRUE,aes(colour="loess"))+
+  
+  labs(colour = "smoothing methods")+
+  
+  ggtitle("scatter plot of log(gdpPercap) vs lifeExp") +
+  xlab("log(gdpPercap)") + ylab("lifeExp")+
+  
+  theme(
+plot.title = element_text(color="red", size=20, face="bold.italic"),
+axis.title.x = element_text(color="blue", size=15, face="bold"),
+axis.title.y = element_text(color="blue", size=15, face="bold"),
+legend.title = element_text(color="blue", size=15, face="bold"),
+legend.text = element_text(colour="blue", size=15)
+)
+```
+explain the following:
+
+#1. smoothing
+Ans:
+  The degree of smoothness of model terms is estimated as part of fitting.It can be hard to view trends with just points alone.So adding a smoothing line in order to see what the trends look like. This can be especially helpful when trying to understand regressions.
+
+#2. above mentioned different smoothing methods
+Ans:
+
+#lm:
+  lm is used to fit linear models. It can be used to carry out regression, single stratum analysis of variance and analysis of covariance.
+  
+#glm:
+  glm is used to fit generalized linear models, specified by giving a symbolic description of the linear predictor and a description of the error distribution.
+  
+#rlm:
+  Robust Fitting of Linear Models.Fit a linear model by robust regression using an M estimator.
+  An object of class "rlm" inheriting from "lm". Note that the df.residual component is deliberately set to NA to avoid inappropriate estimation of the residual scale from the residual mean square by "lm" methods.
+  
+#gam:
+   Fits a generalized additive model (GAM) to data, the term 'GAM' being taken to include any quadratically penalized GLM and a variety of other models estimated by a quadratically penalised likelihood type approach.
+   A generalized additive model (GAM) is a generalized linear model (GLM) in which the linear predictor is given by a user specified sum of smooth functions of the covariates plus a conventional parametric component of the linear predictor.
+   
+#loess:
+  Loess short for Local Regression is a non-parametric approach that fits multiple regressions in local neighborhood. This can be particularly resourceful, if you know that your X variables are bound within a range.
+
+  Loess regression can be applied using the loess() on a numerical vector to smoothen it and to predict the Y locally (i.e, within the trained values of Xs). The size of the neighborhood can be controlled using the span argument, which ranges between 0 to 1. It controls the degree of smoothing. So, the greater the value of span, more smooth is the fitted curve.
+
+#3. Which of these methods cannot be used for a large dataset and why?
+ans:
+  loess cannot use for large dataset greater than 1000 datapoints.
+  For method = NULL the smoothing method is chosen based on the size of the largest group (across all panels). stats::loess() is used for less than 1,000 observations; otherwise method="gam" is used with formula = y ~ s(x, bs = "cs") with method = "REML". Somecases, loess gives a better appearance, but is O(N2) in memory, so does not work for larger datasets.
